@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request  # Add the missing import
 import requests
 
 app = Flask(__name__)
 
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather?"
-API_KEY = open('api_key.txt', 'r').read()  # Make sure api_key.txt contains just the key
+API_KEY = "your api key goes here"  # Make sure api_key.txt contains just the key
 
 def kelvin_to_celsius(kelvin):
     return kelvin - 273.15
@@ -12,6 +12,8 @@ def kelvin_to_celsius(kelvin):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     weather_data = None
+    error_message = None  # Initialize error_message to None
+
     if request.method == 'POST':
         city = request.form['city']
         try:
@@ -31,12 +33,11 @@ def home():
                 }
             else:
                 error_message = f"Error: {response['message']}"
-                return render_template('home.html', error_message=error_message)
         except requests.exceptions.RequestException as e:
             error_message = "An error occurred while fetching data. Please try again later."
-            return render_template('home.html', error_message=error_message)
 
-    return render_template('home.html', weather_data=weather_data)
+    return render_template('home.html', weather_data=weather_data, error_message=error_message)
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0')
+    from flask_app import app
+    app.run(host='0.0.0.0')
